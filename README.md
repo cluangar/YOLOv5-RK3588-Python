@@ -1,6 +1,9 @@
 # YOLOv5-RK3588-Python
 Modify Code From rknn-toolkit2
 
+# Getting Started
+You can change source cam, resolution from capture in config.py
+
 # Prerequisites
 1. must compile opencv support gstreamer
 2. opencv
