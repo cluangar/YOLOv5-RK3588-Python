@@ -13,3 +13,6 @@ You can change source cam, resolution from capture in config.py
 
 # Running the program
 python inference_npu.py
+
+#Example on Youtube
+https://www.youtube.com/watch?v=eD6L55MkDoo
