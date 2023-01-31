@@ -4,8 +4,18 @@ import platform
 from rknnlite.api import RKNNLite
 from imutils.video import FPS
 import time
-from lib.postprocess import yolov5_post_process
+from lib.postprocess import yolov5_post_process, letterbox_reverse_box
 import lib.config as config
+import argparse
+
+# construct the argument parse and parse the arguments
+ap = argparse.ArgumentParser()
+#cam = use gstreamer, cam2 = use cv2.videocapture
+ap.add_argument("-i", "--inputtype", required=False, default="cam2",
+	help="Select input cam, cam2, file")
+ap.add_argument("-f", "--filename", required=False, default="skyfall.mp4",
+	help="file video (.mp4)")
+args = vars(ap.parse_args())
 
 IMG_SIZE = config.IMG_SIZE
 
@@ -37,7 +47,8 @@ def get_host():
         host = os_machine
     return host
 
-def draw(image, boxes, scores, classes):
+#def draw(image, boxes, scores, classes):
+def draw(image, boxes, scores, classes, dw, dh):
     """Draw the boxes on the image.
 
     # Argument:
@@ -51,6 +62,10 @@ def draw(image, boxes, scores, classes):
         top, left, right, bottom = box
 #        print('class: {}, score: {}'.format(CLASSES[cl], score))
 #        print('box coordinate left,top,right,down: [{}, {}, {}, {}]'.format(top, left, right, bottom))
+
+        ##Transform Box to original image
+        top, left, right, bottom = letterbox_reverse_box(top, left, right, bottom, config.CAM_WIDTH, config.CAM_HEIGHT, config.IMG_SIZE, config.IMG_SIZE, dw, dh)
+
         top = int(top)
         left = int(left)
         right = int(right)
@@ -89,12 +104,32 @@ def letterbox(im, new_shape=(640, 640), color=(0, 0, 0)):
 def open_cam_usb(dev, width, height):
     # We want to set width and height here, otherwise we could just do:
     #     return cv2.VideoCapture(dev)
-    gst_str = ("uvch264src device=/dev/video{} ! "
+    
+    if args["inputtype"] == 'cam':
+        gst_str = ("uvch264src device=/dev/video{} ! "
                "image/jpeg, width={}, height={}, framerate=30/1 ! "
                "jpegdec ! "
                "video/x-raw, format=BGR ! "
                "appsink").format(dev, width, height)
-    return cv2.VideoCapture(gst_str, cv2.CAP_GSTREAMER)
+        vs = cv2.VideoCapture(gst_str, cv2.CAP_GSTREAMER)
+
+    elif args["inputtype"] == 'file':
+        gst_str = ("filesrc location={} ! "
+               "qtdemux name=demux demux. ! queue ! faad ! audioconvert ! audioresample ! autoaudiosink demux. ! "
+               "avdec_h264 ! videoscale ! videoconvert ! "
+               "appsink").format(args["filename"])		
+        vs = cv2.VideoCapture(gst_str, cv2.CAP_GSTREAMER)
+
+    elif args["inputtype"] == 'cam2':
+        vs = cv2.VideoCapture(dev)
+        vs.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        vs.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+
+    return vs
+
+
+
 
 if __name__ == '__main__':
 
@@ -117,6 +152,8 @@ if __name__ == '__main__':
         exit(ret)
     print('done')
 
+#    ori_img = cv2.imread('./bus.jpg')
+#    img = cv2.cvtColor(ori_img, cv2.COLOR_BGR2RGB)
 
     # init runtime environment
     print('--> Init runtime environment')
@@ -162,6 +199,8 @@ if __name__ == '__main__':
         show_fps = int(show_fps)
         show_fps = str("{} FPS".format(show_fps))
 
+        ori_frame = frame
+
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame, ratio, (dw, dh) = letterbox(frame, new_shape=(IMG_SIZE, IMG_SIZE))
 #        frame = cv2.resize(frame, (IMG_SIZE, IMG_SIZE))
@@ -188,26 +227,13 @@ if __name__ == '__main__':
 
 #        boxes = None
 
-        img_1 = frame
+#        img_1 = frame
+        img_1 = ori_frame
         if boxes is not None:
 
-            # post process
-            input0_data = outputs[0]
-            input1_data = outputs[1]
-            input2_data = outputs[2]
-
-            input0_data = input0_data.reshape([3, -1]+list(input0_data.shape[-2:]))
-            input1_data = input1_data.reshape([3, -1]+list(input1_data.shape[-2:]))
-            input2_data = input2_data.reshape([3, -1]+list(input2_data.shape[-2:]))
-
-            input_data = list()
-            input_data.append(np.transpose(input0_data, (2, 3, 0, 1)))
-            input_data.append(np.transpose(input1_data, (2, 3, 0, 1)))
-            input_data.append(np.transpose(input2_data, (2, 3, 0, 1)))
-
-
-            img_1 = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            draw(img_1, boxes, scores, classes)
+#            img_1 = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+#            draw(img_1, boxes, scores, classes)
+            draw(img_1, boxes, scores, classes, dw, dh)
             
             # show FPS in Frame
             cv2.putText(img_1, show_fps, (7, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 255, 0), 1, cv2.LINE_AA)
