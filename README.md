@@ -14,11 +14,11 @@ You can change source cam, resolution from capture in config.py
 # Running the program
 python inference_npu.py
 
-#This branch (singlethread)
+# This branch (singlethread)
 1. Improve performance by transfer detect box to original stream
 2. remove redundancy postprocess
 3. add default support cv2.capture (cam2)
 4. add file mp4 support (need gstreamer)
 
-#Example on Youtube
+# Example on Youtube
 https://www.youtube.com/watch?v=eD6L55MkDoo
