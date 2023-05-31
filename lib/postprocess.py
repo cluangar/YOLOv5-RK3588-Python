@@ -5,18 +5,6 @@ OBJ_THRESH = config.OBJ_THRESH
 NMS_THRESH = config.NMS_THRESH
 IMG_SIZE = config.IMG_SIZE
 
-def letterbox_reverse_box(x1, y1, x2, y2, width, height, new_width, new_height, dw, dh):
-
-    w_scale = width / new_width
-    h_scale = height / new_height
-
-    x1 = (x1-dw)*w_scale
-    x2 = (x2+dw)*w_scale
-    y1 = (y1-dh)*h_scale
-    y2 = (y2+dh)*h_scale
-    
-    return [x1, y1, x2, y2]
-    
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
     
