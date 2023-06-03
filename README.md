@@ -21,6 +21,7 @@ python inference_npu_multi_pipeline.py -i file2 -f {video file.mp4}
     cam2 = camera no gstreamer
     file = video file with gstreamer
     file2 = video file no gstreamer
+
 -f = video file (Optional from select file, file2)
 
 # This branch (singlethread)
