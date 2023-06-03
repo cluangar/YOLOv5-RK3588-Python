@@ -15,8 +15,8 @@ CLASSES = ("person", "bicycle", "car", "motorbike ", "aeroplane ", "bus ", "trai
 # decice tree for rk356x/rk3588
 DEVICE_COMPATIBLE_NODE = '/proc/device-tree/compatible'
 
-RK356X_RKNN_MODEL = 'yolov5s.rknn'
-RK3588_RKNN_MODEL = 'yolov5s-640-640.rknn'
+RK356X_RKNN_MODEL = 'models/yolov5s.rknn'
+RK3588_RKNN_MODEL = 'models/yolov5s-640-640.rknn'
 
 #Webcam dev /device/video0, /device/video1 etc.
 CAM_DEV = 0

@@ -13,6 +13,15 @@ import platform
 from rknnlite.api import RKNNLite
 from lib.postprocess import yolov5_post_process
 import lib.config as config
+import argparse
+
+# construct the argument parse and parse the arguments
+ap = argparse.ArgumentParser()
+ap.add_argument("-i", "--inputtype", required=False, default="cam2",
+	help="Select input cam(gstreamer), cam2, file(gstreamer), file2")
+ap.add_argument("-f", "--filename", required=False, default="skyfall.mp4",
+	help="file video (.mp4)")
+args = vars(ap.parse_args())
 
 IMG_SIZE = config.IMG_SIZE
 
@@ -164,12 +173,32 @@ def reverse_letterbox(top, left, right, bottom, ratio, dw, dh):
 def open_cam_usb(dev, width, height):
     # We want to set width and height here, otherwise we could just do:
     #     return cv2.VideoCapture(dev)
-    gst_str = ("uvch264src device=/dev/video{} ! "
+    
+    if args["inputtype"] == 'cam':
+        gst_str = ("uvch264src device=/dev/video{} ! "
                "image/jpeg, width={}, height={}, framerate=30/1 ! "
                "jpegdec ! "
                "video/x-raw, format=BGR ! "
                "appsink").format(dev, width, height)
-    return cv2.VideoCapture(gst_str, cv2.CAP_GSTREAMER)
+        vs = cv2.VideoCapture(gst_str, cv2.CAP_GSTREAMER)
+
+    elif args["inputtype"] == 'file':
+        gst_str = ("filesrc location={} ! "
+               "qtdemux name=demux demux. ! queue ! faad ! audioconvert ! audioresample ! autoaudiosink demux. ! "
+               "avdec_h264 ! videoscale ! videoconvert ! "
+               "appsink").format(args["filename"])		
+        vs = cv2.VideoCapture(gst_str, cv2.CAP_GSTREAMER)
+
+    elif args["inputtype"] == 'cam2':
+        vs = cv2.VideoCapture(dev)
+        vs.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        vs.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+    elif args["inputtype"] == 'file2':
+        vs = cv2.VideoCapture(args["filename"])
+
+
+    return vs
 
 def showInMovedWindow(winname, img, x, y):
     cv2.namedWindow(winname)        # Create a named window
