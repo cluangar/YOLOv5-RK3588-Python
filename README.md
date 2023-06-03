@@ -13,16 +13,6 @@ You can change source cam, resolution from capture in config.py
 
 # Running the program
 python inference_npu_multi_pipeline.py
-python inference_npu_multi_pipeline.py --help
-python inference_npu_multi_pipeline.py -i file2 -f {video file.mp4}
-[option]
--i = input type camera or file
-    cam = camera with gstreamer
-    cam2 = camera no gstreamer
-    file = video file with gstreamer
-    file2 = video file no gstreamer
-
--f = video file (Optional from select file, file2)
 
 # This branch (singlethread)
 1. Improve performance by transfer detect box to original stream
