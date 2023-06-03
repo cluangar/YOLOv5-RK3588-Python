@@ -13,7 +13,6 @@ You can change source cam, resolution from capture in config.py
 
 # Running the program
 python inference_npu_multi_pipeline.py
-
 python inference_npu_multi_pipeline.py --help
 python inference_npu_multi_pipeline.py -i file2 -f {video file.mp4}
 [option]
