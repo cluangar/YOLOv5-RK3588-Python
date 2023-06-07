@@ -340,7 +340,7 @@ if __name__ == '__main__':
 #    rknn = load_model()
 
     q_frame = Queue(maxsize=1)
-    q_image = Queue(maxsize=3)
+    q_image = Queue(maxsize=1)
     q_infer = Queue(maxsize=3)
     q_objs = Queue(maxsize=3)
     flag = multiprocessing.Value("d", 0)
