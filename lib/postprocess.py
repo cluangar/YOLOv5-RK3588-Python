@@ -5,15 +5,18 @@ OBJ_THRESH = config.OBJ_THRESH
 NMS_THRESH = config.NMS_THRESH
 IMG_SIZE = config.IMG_SIZE
 
-def letterbox_reverse_box(x1, y1, x2, y2, width, height, new_width, new_height, dw, dh):
+def letterbox_reverse_box(x1, y1, x2, y2, cam_width, cam_height, yolo_width, yolo_height, dw, dh):
 
-    w_scale = width / new_width
-    h_scale = height / new_height
+    w_scale = cam_width / yolo_width
+    h_scale = cam_height / yolo_height
 
-    x1 = (x1-dw)*w_scale
-    x2 = (x2+dw)*w_scale
-    y1 = (y1-dh)*h_scale
-    y2 = (y2+dh)*h_scale
+    scale = max(w_scale, h_scale)
+
+    x1 = round( scale * ((x1 - dw) + (yolo_width / 2 - dw)) - (cam_width / 2) )
+    y1 = round( scale * ((y1 - dh) + (yolo_height / 2 - dh)) - (cam_height / 2) )
+    x2 = round( scale * ((x2 - dw) + (yolo_width / 2 - dw)) - (cam_width / 2) )
+    y2 = round( scale * ((y2 - dh) + (yolo_height / 2 - dh)) - (cam_height / 2) )
+
     
     return [x1, y1, x2, y2]
     
