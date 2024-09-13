@@ -22,3 +22,5 @@ python inference_npu.py
 
 # Example on Youtube
 https://www.youtube.com/watch?v=eD6L55MkDoo
+# YOLOv5 vs YOLOv8
+https://www.youtube.com/watch?v=ROTseFoK89o
